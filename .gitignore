@@ -1,0 +1,7 @@
+*db/
+*.txt
+output_files/
+quartus/
+work/
+*.wlf
+*.ini

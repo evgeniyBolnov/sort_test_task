@@ -1,36 +1,36 @@
-module sort #(
+module sort_reference #(
   parameter DATA_WIDTH = 8 ,
-  parameter MAX_LENGTH = 16
+  parameter MAX_LENGTH = 8
 ) (
-  input                         snk_reset,
-  input                         snk_clock,
-  output logic                  snk_ready,
-  input                         snk_valid,
-  input                         snk_sop  ,
-  input                         snk_eop  ,
-  input        [DATA_WIDTH-1:0] snk_data ,
-  input                         src_reset,
-  input                         src_clock,
-  output logic                  src_valid,
-  output logic                  src_sop  ,
-  output logic                  src_eop  ,
-  output logic [DATA_WIDTH-1:0] src_data
+  input                       snk_reset,
+  input                       snk_clock,
+  output bit                  snk_ready,
+  input                       snk_valid,
+  input                       snk_sop  ,
+  input                       snk_eop  ,
+  input      [DATA_WIDTH-1:0] snk_data ,
+  input                       src_reset,
+  input                       src_clock,
+  output bit                  src_valid,
+  output bit                  src_sop  ,
+  output bit                  src_eop  ,
+  output bit [DATA_WIDTH-1:0] src_data
 );
 
   enum int unsigned { IDLE, INC, SORT, OUT, RESET } snk_state;
   enum int unsigned { NOOP, WAIT, PROCESS } src_state;
 
-  logic [DATA_WIDTH-1:0] inter     [  MAX_LENGTH:0];
-  logic                  we_inter  [  MAX_LENGTH:0];
-  logic [DATA_WIDTH-1:0] stor_inter[MAX_LENGTH-1:0];
+  bit [DATA_WIDTH-1:0] inter     [  MAX_LENGTH:0];
+  bit                  we_inter  [  MAX_LENGTH:0];
+  bit [DATA_WIDTH-1:0] stor_inter[MAX_LENGTH-1:0];
 
-  logic [DATA_WIDTH-1:0] ram[MAX_LENGTH-1:0];
+  bit [DATA_WIDTH-1:0] ram[MAX_LENGTH-1:0];
 
-  logic [$clog2(MAX_LENGTH):0] sort_cnt;
-  logic [$clog2(MAX_LENGTH):0] data_cnt;
-  logic [$clog2(MAX_LENGTH):0] out_cnt ;
+  bit [$clog2(MAX_LENGTH):0] sort_cnt;
+  bit [$clog2(MAX_LENGTH):0] data_cnt;
+  bit [$clog2(MAX_LENGTH):0] out_cnt ;
 
-  logic out_complete;
+  bit out_complete;
 
   assign inter[0]    = snk_data;
   assign we_inter[0] = snk_valid;
@@ -106,6 +106,8 @@ module sort #(
             INC :
               begin
                 snk_state <= ( snk_eop && snk_valid ) ? ( data_cnt < MAX_LENGTH ) ? SORT : OUT : INC;
+                if (snk_eop && snk_valid && data_cnt >= MAX_LENGTH)
+                  $display("The package is oversized(%d)", (data_cnt + 1) );
                 data_cnt  <= data_cnt + 1'b1;
                 snk_ready <= ~( snk_eop && snk_valid );
               end
@@ -172,15 +174,15 @@ module sort_cell #(
     begin
       if(reset)
         begin
-          storage_data <= {DATA_WIDTH{1'b1}};
-          rd_data      <= {DATA_WIDTH{1'b1}};
+          storage_data <= '1;
+          rd_data      <= '1;
         end
       else
         begin
           if (empty)
             begin
-              storage_data <= {DATA_WIDTH{1'b1}};
-              rd_data      <= {DATA_WIDTH{1'b1}};
+              storage_data <= '1;
+              rd_data      <= '1;
             end
           else
             begin
@@ -199,4 +201,4 @@ module sort_cell #(
         end
     end
 
-endmodule
+endmodule 

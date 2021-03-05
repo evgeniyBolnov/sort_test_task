@@ -5,3 +5,4 @@ quartus/
 work/
 *.wlf
 *.ini
+*.bak

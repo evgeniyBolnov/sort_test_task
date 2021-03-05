@@ -1,5 +1,5 @@
 # Simulator options
-set vsim_opt {-voptargs=+acc}
+set vsim_opt "-voptargs=+acc -msgmode both +cover"
 
 # Compiler options
 set vlog_opt {-work work -vlog01compat +incdir+../../../hdl/utils +define+MODELSIM}
@@ -30,9 +30,21 @@ set altera_library {altera_ver altera_mf_ver cyclonev_ver altera_lnsim_ver cyclo
 
 set design_library {
     {
+        ../rtl/Sharkov
+        {
+            sort.v
+            fifo.v
+            read_fifo_fsm.v
+            src.v
+            sync.v
+            write_fifo_fsm.v
+            sort_top.v
+        }
+    }
+    {
         ../rtl
         {
-            sort.sv
+            sort_reference.sv
         }
     }
     {
